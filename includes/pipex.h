@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/14 21:21:47 by vbleskin          #+#    #+#             */
-/*   Updated: 2025/12/23 13:45:59 by vbleskin         ###   ########.fr       */
+/*   Updated: 2025/12/23 13:58:54 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "libft.h"
 # include <fcntl.h>
 # include <unistd.h>
+# include <stdio.h>
 
 # define SUCCESS 0
 # define ERROR 1

@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:00:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2025/12/23 13:54:55 by vbleskin         ###   ########.fr       */
+/*   Updated: 2025/12/23 14:33:04 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ int	ft_process_cmds(char **av, t_data *data)
 		{
 			cmd_data = ft_init_cmd_data(av[cmd_count + 2], data->path_list);
 			if (!cmd_data)
-				return (ERROR);
+				return (free_data(data), exit(127), ERROR);
 			ft_run_cmd(cmd_data, data, cmd_count);
 			free_cmd_data(cmd_data);
 		}

@@ -6,23 +6,53 @@
 #    By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/14 21:18:51 by vbleskin          #+#    #+#              #
-#    Updated: 2025/12/19 14:05:26 by vbleskin         ###   ########.fr        #
+#    Updated: 2025/12/23 14:29:44 by vbleskin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= pipex
+# NAME
 
-SRC			= main.c utils.c
-OBJ			=
+NAME			=	pipex
 
-SRC_DIR		= /src
-OBJ_DIR		= /obj
+# DEF
 
-CFLAGS		= -Wall -Werror -Wextra -I includes
-RM			= rm -af
+CC				= cc
+CFLAGS			= -Wall -Werror -Wextra -I includes -I $(LIBFT_DIR)includes
+RM				= rm -rf
 
-# rules
-all :		$NAME
+# DIR
 
-NAME :
-			CC $CFLAGS
+SRC_DIR			=	src/
+OBJ_DIR			=	obj/
+LIBFT_DIR			=	$(SRC_DIR)libft/
+
+# FILES
+
+SRC_FILES		=	main.c utils.c error.c process.c parsing.c
+SRCS			=	$(addprefix $(SRC_DIR), $(SRC_FILES))
+OBJS			=	$(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
+LIBS			=	-L$(LIBFT_DIR) -lft
+
+# RULES
+
+all :			$(NAME)
+
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c
+				@mkdir -p $(dir $@)
+				$(CC) $(CFLAGS) -c $< -o $@
+
+$(NAME) :		$(OBJS)
+				@make -C $(LIBFT_DIR)
+				$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $(NAME)
+
+clean :
+				@make clean -C $(LIBFT_DIR)
+				$(RM) $(OBJ_DIR)
+
+fclean :		clean
+				@make fclean -C $(LIBFT_DIR)
+				$(RM) $(NAME)
+
+re :			fclean all
+
+.PHONY:			all clean fclean re
