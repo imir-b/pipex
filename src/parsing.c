@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2025/12/23 13:49:26 by vbleskin         ###   ########.fr       */
+/*   Updated: 2025/12/24 05:37:02 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,15 @@ void	*free_data(t_data *data)
 		free(data->pids);
 		data->pids = NULL;
 	}
+	if (data->fd_in)
+		close(data->fd_in);
+	if (data->fd_out)
+		close(data->fd_out);
 	if (data)
 	{
 		free(data);
 		data = NULL;
 	}
-	if (data->fd_in)
-		close(data->fd_in);
-	if (data->fd_out)
-		close(data->fd_out);
 	return (NULL);
 }
 
@@ -69,9 +69,11 @@ t_data	*ft_init_data(int ac, char **av, const char *path_line)
 	if (!data->pids)
 		return (free_data(data));
 	data->fd_in = open(av[1], O_RDONLY);
+	if (data->fd_in == FAIL)
+		return (perror(av[1]), free_data(data));
 	data->fd_out = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (data->fd_in == FAIL || data->fd_out == FAIL)
-		return (free_data(data));
+	if (data->fd_out == FAIL)
+		return (perror(av[ac - 1]), free_data(data));
 	return (data);
 }
 
@@ -117,4 +119,3 @@ t_cmd_data	*ft_init_cmd_data(char *cmd_line, char **path_list)
 	}
 	return (free_cmd_data(cmd_data));
 }
-

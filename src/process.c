@@ -6,15 +6,22 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:00:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2025/12/23 14:33:04 by vbleskin         ###   ########.fr       */
+/*   Updated: 2025/12/24 05:47:45 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	ft_kill_zombies()
+void	ft_wait_pids(t_data *data, int *status)
 {
-	// tue les enfants de fork en trop (inutilises)
+	int	i;
+
+	i = 0;
+	while (i < data->n_cmds)
+	{
+		waitpid(data->pids[i], &(*status), 0);
+		i++;
+	}
 }
 
 void	ft_close_all_fds(t_data *data)
@@ -36,26 +43,28 @@ void	ft_run_cmd(t_cmd_data *cmd_data, t_data *data, int cmd_count)
 	if (cmd_count == 0)
 	{
 		if (dup2(data->fd_in, STDIN_FILENO) == FAIL)
-			return (perror("Error"), exit(ERROR));
+			return (perror(DUP_ERR), exit(ERROR));
 		if (dup2(data->pipefds[1], STDOUT_FILENO) == FAIL)
-			return (perror("Error"), exit(ERROR));
+			return (perror(DUP_ERR), exit(ERROR));
 	}
 	else if (cmd_count == data->n_cmds - 1)
 	{
 		if (dup2(data->pipefds[2 * (cmd_count - 1)], STDIN_FILENO) == FAIL)
-			return (perror("Error"), exit(ERROR));
+			return (perror(DUP_ERR), exit(ERROR));
 		if (dup2(data->fd_out, STDOUT_FILENO) == FAIL)
-			return (perror("Error"), exit(ERROR));
+			return (perror(DUP_ERR), exit(ERROR));
 	}
 	else
 	{
 		if (dup2(data->pipefds[2 * (cmd_count - 1)], STDIN_FILENO) == FAIL)
-			return (perror("Error"), exit(ERROR));
-		if (dup2(data->pipefds[2 * (cmd_count + 1)], STDOUT_FILENO) == FAIL)
-			return (perror("Error"), exit(ERROR));
+			return (perror(DUP_ERR), exit(ERROR));
+		if (dup2(data->pipefds[2 * cmd_count + 1], STDOUT_FILENO) == FAIL)
+			return (perror(DUP_ERR), exit(ERROR));
 	}
 	ft_close_all_fds(data);
 	execve(cmd_data->path, cmd_data->cmd, data->envp);
+	perror(EXE_ERR);
+	exit(ERROR);
 }
 
 int	ft_process_cmds(char **av, t_data *data)
@@ -73,7 +82,12 @@ int	ft_process_cmds(char **av, t_data *data)
 		{
 			cmd_data = ft_init_cmd_data(av[cmd_count + 2], data->path_list);
 			if (!cmd_data)
-				return (free_data(data), exit(127), ERROR);
+			{
+				ft_error(av[cmd_count + 2]);
+				ft_error(": commande introuvable");
+				free_data(data);
+				exit(127);
+			}
 			ft_run_cmd(cmd_data, data, cmd_count);
 			free_cmd_data(cmd_data);
 		}
@@ -90,7 +104,7 @@ int	ft_create_pipes(t_data *data)
 	while (n_pipes < data->n_cmds - 1)
 	{
 		if (pipe(data->pipefds + (2 * n_pipes)) == FAIL)
-			return (perror("Error"), free_data(data), ERROR);
+			return (perror(PIP_ERR), free_data(data), ERROR);
 		n_pipes++;
 	}
 	return (n_pipes);
