@@ -6,7 +6,7 @@
 #    By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/14 21:18:51 by vbleskin          #+#    #+#              #
-#    Updated: 2025/12/24 05:15:22 by vbleskin         ###   ########.fr        #
+#    Updated: 2026/01/02 10:23:37 by vbleskin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@ NAME			=	pipex
 # DEF
 
 CC				= cc
-CFLAGS			= -Wall -Werror -Wextra -I includes -I $(LIBFT_DIR)includes
+CFLAGS			= -Wall -Werror -Wextra -I includes -I $(LIBFT_DIR)includes -g3
 RM				= rm -rf
 
 # DIR

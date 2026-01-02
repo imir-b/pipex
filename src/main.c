@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/14 21:21:00 by vbleskin          #+#    #+#             */
-/*   Updated: 2025/12/24 05:49:55 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/02 10:15:36 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@ int	main(int ac, char **av, char **envp)
 {
 	const char	*path_line = ft_find_path(envp);
 	t_data		*data;
-	int			status;
+	int			ret;
 
+	ret = 0;
 	if (!path_line || ac < 5)
 		return (ft_error("Error: args and/or envp not valid"));
 	data = ft_init_data(ac, av, path_line);
@@ -29,8 +30,7 @@ int	main(int ac, char **av, char **envp)
 	if (ft_process_cmds(av, data))
 		return (free_data(data), ft_error("Error : Failure process cmds"));
 	ft_close_all_fds(data);
-	ft_wait_pids(data, &status);
-	if (WIFEXITED(status))
-		return (free_data(data), WEXITSTATUS(status));
-	return (free_data(data), SUCCESS);
+	ret = ft_wait_pids(data);
+	free_data(data);
+	return (ret);
 }

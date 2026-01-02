@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2025/12/24 05:37:02 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/02 10:33:23 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,10 @@ t_cmd_data	*ft_init_cmd_data(char *cmd_line, char **path_list)
 		if (access(cmd_data->path, X_OK) == 0)
 			return (cmd_data);
 		else
+		{
 			free(cmd_data->path);
+			cmd_data->path = NULL;
+		}
 		cur++;
 	}
 	return (free_cmd_data(cmd_data));
