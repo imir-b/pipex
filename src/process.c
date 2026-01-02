@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:00:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/02 10:15:30 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:12:22 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,35 +47,40 @@ void	ft_close_all_fds(t_data *data)
 	close(data->fd_out);
 }
 
-void	ft_run_cmd(t_cmd_data *cmd_data, t_data *data, int cmd_count)
+void	ft_secure_dup2(int fd, int target, t_cmd_data *cmd_data, t_data *data)
 {
-	if (cmd_count == 0)
+	if (dup2(fd, target) == FAIL)
 	{
-		if (dup2(data->fd_in, STDIN_FILENO) == FAIL)
-			return (perror(DUP_ERR), free_data(data), free_cmd_data(cmd_data), exit(ERROR));
-		if (dup2(data->pipefds[1], STDOUT_FILENO) == FAIL)
-			return (perror(DUP_ERR), free_data(data), free_cmd_data(cmd_data), exit(ERROR));
+		perror(DUP_ERR);
+		free_cmd_data(cmd_data);
+		free_data(data);
+		exit(ERROR);
 	}
-	else if (cmd_count == data->n_cmds - 1)
+}
+
+void	ft_run_cmd(t_cmd_data *c_data, t_data *data, int count)
+{
+	if (count == 0)
 	{
-		if (dup2(data->pipefds[2 * (cmd_count - 1)], STDIN_FILENO) == FAIL)
-			return (perror(DUP_ERR), free_data(data), free_cmd_data(cmd_data), exit(ERROR));
-		if (dup2(data->fd_out, STDOUT_FILENO) == FAIL)
-			return (perror(DUP_ERR), free_data(data), free_cmd_data(cmd_data), exit(ERROR));
+		ft_secure_dup2(data->fd_in, STDIN_FILENO, c_data, data);
+		ft_secure_dup2(data->pipefds[1], STDOUT_FILENO, c_data, data);
+	}
+	else if (count == data->n_cmds - 1)
+	{
+		ft_secure_dup2(data->pipefds[2 * (count - 1)], STDIN_FILENO, c_data, data);
+		ft_secure_dup2(data->fd_out, STDOUT_FILENO, c_data, data);
 	}
 	else
 	{
-		if (dup2(data->pipefds[2 * (cmd_count - 1)], STDIN_FILENO) == FAIL)
-			return (perror(DUP_ERR), free_data(data), free_cmd_data(cmd_data), exit(ERROR));
-		if (dup2(data->pipefds[2 * cmd_count + 1], STDOUT_FILENO) == FAIL)
-			return (perror(DUP_ERR), free_data(data), free_cmd_data(cmd_data), exit(ERROR));
+		ft_secure_dup2(data->pipefds[2 * (count - 1)], STDIN_FILENO, c_data, data);
+		ft_secure_dup2(data->pipefds[2 * count + 1], STDOUT_FILENO, c_data, data);
 	}
 	ft_close_all_fds(data);
-	execve(cmd_data->path, cmd_data->cmd, data->envp);
+	execve(c_data->path, c_data->cmd, data->envp);
 	perror(EXE_ERR);
-	free_cmd_data(cmd_data);
+	free_cmd_data(c_data);
 	free_data(data);
-	exit(ACCESS_ERR);
+	exit(128);
 }
 
 int	ft_process_cmds(char **av, t_data *data)
