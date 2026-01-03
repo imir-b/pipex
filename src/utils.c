@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 04:26:42 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/03 08:49:41 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/03 22:58:32 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
  * mot pour les commandes type 'grep' ou 'awk' qui peuvent prendre des chaines 
  * en arguments.
  */
-static int	ft_count_words_quotes(char *s)
+static int	ft_count_words_quotes(char *s, char sep)
 {
 	int	count;
 	int	quote;
@@ -26,11 +26,11 @@ static int	ft_count_words_quotes(char *s)
 	count = 0;
 	while (*s)
 	{
-		while (*s && *s == ' ')
+		while (*s && *s == sep)
 			s++;
 		if (*s)
 			count++;
-		while (*s && (*s != ' ' || quote))
+		while (*s && (*s != sep || quote))
 		{
 			if (*s == '\'' || *s == '\"')
 			{
@@ -45,36 +45,62 @@ static int	ft_count_words_quotes(char *s)
 	return (count);
 }
 
-static char	ft_extract_word(char **s)
+static int	ft_word_len_quotes(char *s, char sep)
 {
-	char	*word;
+	char	*start;
+	int		len;
 	int		quote;
-	int		start;
-	int		word_len;
 
-	start = *s;
-	while (**s)
+	start = s;
+	quote = 0;
+	while (*s)
 	{
-		if (**s == '\'' || **s == '\"')
+		if (*s == '\'' || *s == '\"')
 		{
-			if (quote == **s)
+			if (quote == *s)
 				quote = 0;
 			else if (!quote)
-				quote = **s;
+				quote = *s;
 		}
-		if (**s == ' ' && !quote)
+		if (*s == sep && !quote)
 			break ;
-		(*s)++;
+		s++;
 	}
-	word_len = *s - start;
-	word = malloc(sizeof(char) * (word_len + 1));
+	len = s - start;
+	return (len);
+}
+
+static char	*ft_extract_word_quotes(char **s, char sep)
+{
+	char	*word;
+	int		len;
+	int		quote;
+	int		i;
+
+	len = ft_word_len_quotes(*s, sep);
+	word = malloc(sizeof(char) * (len + 1));
 	if (!word)
 		return (NULL);
-	// finir ici cette fonction ! ->
+	i = 0;
+	quote = 0;
+	while (len-- > 0)
+	{
+		if ((**s == '\'' || **s == '\"') && (!quote || quote == **s))
+			quote ^= **s;
+		else
+			word[i++] = **s;
+		(*s)++;
+	}
+	word[i] = '\0';
 	return (word);
 }
 
-char	**ft_split_quotes(char *s)
+/**
+ * Split qui ignore les separateurs entre des quotes (' ou ") concu pour pipex
+ * afin de pouvoir lire les arguments de grep ou awk entre quotes comme un 
+ * seul mot.
+ */
+char	**ft_split_quotes(char *s, char sep)
 {
 	char	**dest;
 	int		words;
@@ -82,18 +108,18 @@ char	**ft_split_quotes(char *s)
 
 	if (!s)
 		return (NULL);
-	words = ft_count_words_quotes(s);
+	words = ft_count_words_quotes(s, sep);
 	dest = malloc(sizeof(char *) * (words + 1));
 	if (!dest)
 		return (NULL);
 	index = 0;
 	while (index < words)
 	{
-		while (*s & *s == ' ')
+		while (*s && *s == ' ')
 			s++;
-		dest[index] = ft_extract_word(&s);
-		if (dest[index])
-			return (ft_free_tab(dest));
+		dest[index] = ft_extract_word_quotes(&s, sep);
+		if (!dest[index])
+			return (free_tab(dest));
 		index++;
 	}
 	dest[index] = NULL;
@@ -129,18 +155,4 @@ char	*ft_super_join(char const *s1, char const *s2, char sep)
 		str[i++] = s2[j++];
 	str[i] = ('\0');
 	return (str);
-}
-
-void	ft_close_all_fds(t_data *data)
-{
-	int	count;
-
-	count = 0;
-	while (count < 2 * (data->n_cmds - 1))
-	{
-		close(data->pipefds[count]);
-		count++;
-	}
-	close(data->fd_in);
-	close(data->fd_out);
 }

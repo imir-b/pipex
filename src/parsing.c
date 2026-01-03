@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/03 08:00:18 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/03 22:41:25 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ t_cmd_data	*ft_init_cmd_data(char *cmd_line, char **path_list)
 	cmd_data = ft_calloc(1, sizeof(t_cmd_data));
 	if (!cmd_data)
 		return (NULL);
-	cmd_data->cmd = ft_split(cmd_line, ' ');
+	cmd_data->cmd = ft_split_quotes(cmd_line, ' ');
 	if (!cmd_data->cmd || !cmd_data->cmd[0])
 		return (free_cmd_data(cmd_data));
 	cur = 0;
