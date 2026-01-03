@@ -6,7 +6,7 @@
 #    By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/14 21:18:51 by vbleskin          #+#    #+#              #
-#    Updated: 2026/01/02 10:23:37 by vbleskin         ###   ########.fr        #
+#    Updated: 2026/01/03 08:13:49 by vbleskin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ NAME			=	pipex
 
 CC				= cc
 CFLAGS			= -Wall -Werror -Wextra -I includes -I $(LIBFT_DIR)includes -g3
+MAKEFLAGS 		+=	--no-print-directory
 RM				= rm -rf
 
 # DIR
@@ -39,19 +40,22 @@ all :			$(NAME)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 				@mkdir -p $(dir $@)
-				$(CC) $(CFLAGS) -c $< -o $@
+				@$(CC) $(CFLAGS) -c $< -o $@
+				@echo "Compiling $<"
 
 $(NAME) :		$(OBJS)
 				@make -C $(LIBFT_DIR)
-				$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $(NAME)
+				@$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $(NAME)
+				@echo "$(NAME) compiled successfuly"
 
 clean :
 				@make clean -C $(LIBFT_DIR)
-				$(RM) $(OBJ_DIR)
+				@$(RM) $(OBJ_DIR)
+				@echo "$(NAME) cleaned successfuly"
 
 fclean :		clean
 				@make fclean -C $(LIBFT_DIR)
-				$(RM) $(NAME)
+				@$(RM) $(NAME)
 
 re :			fclean all
 

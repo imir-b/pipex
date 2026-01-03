@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:00:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/02 11:12:22 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:30:10 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,20 +33,6 @@ int	ft_wait_pids(t_data *data)
 	return (exit_code);
 }
 
-void	ft_close_all_fds(t_data *data)
-{
-	int	count;
-
-	count = 0;
-	while (count < 2 * (data->n_cmds - 1))
-	{
-		close(data->pipefds[count]);
-		count++;
-	}
-	close(data->fd_in);
-	close(data->fd_out);
-}
-
 void	ft_secure_dup2(int fd, int target, t_cmd_data *cmd_data, t_data *data)
 {
 	if (dup2(fd, target) == FAIL)
@@ -58,29 +44,32 @@ void	ft_secure_dup2(int fd, int target, t_cmd_data *cmd_data, t_data *data)
 	}
 }
 
-void	ft_run_cmd(t_cmd_data *c_data, t_data *data, int count)
+void	ft_run_cmd(t_cmd_data *c_data, t_data *data, int n_cmd)
 {
-	if (count == 0)
+	if (n_cmd == 0)
 	{
 		ft_secure_dup2(data->fd_in, STDIN_FILENO, c_data, data);
 		ft_secure_dup2(data->pipefds[1], STDOUT_FILENO, c_data, data);
 	}
-	else if (count == data->n_cmds - 1)
+	else if (n_cmd == data->n_cmds - 1)
 	{
-		ft_secure_dup2(data->pipefds[2 * (count - 1)], STDIN_FILENO, c_data, data);
+		ft_secure_dup2(data->pipefds[2 * (n_cmd - 1)], STDIN_FILENO, \
+						c_data, data);
 		ft_secure_dup2(data->fd_out, STDOUT_FILENO, c_data, data);
 	}
 	else
 	{
-		ft_secure_dup2(data->pipefds[2 * (count - 1)], STDIN_FILENO, c_data, data);
-		ft_secure_dup2(data->pipefds[2 * count + 1], STDOUT_FILENO, c_data, data);
+		ft_secure_dup2(data->pipefds[2 * (n_cmd - 1)], STDIN_FILENO, \
+						c_data, data);
+		ft_secure_dup2(data->pipefds[2 * n_cmd + 1], STDOUT_FILENO, \
+						c_data, data);
 	}
 	ft_close_all_fds(data);
 	execve(c_data->path, c_data->cmd, data->envp);
 	perror(EXE_ERR);
 	free_cmd_data(c_data);
 	free_data(data);
-	exit(128);
+	exit(ERROR);
 }
 
 int	ft_process_cmds(char **av, t_data *data)

@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/02 11:07:43 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/03 08:00:18 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ char	*ft_find_path(char **envp)
 {
 	const char	*path = "PATH=";
 
+	if (!envp)
+		return (NULL);
 	while (*envp)
 	{
 		if (!ft_strncmp(*envp, path, 5))
@@ -70,7 +72,7 @@ t_data	*ft_init_data(int ac, char **av, const char *path_line)
 		return (free_data(data));
 	data->fd_in = open(av[1], O_RDONLY);
 	if (data->fd_in == FAIL)
-		return (perror(av[1]), free_data(data));
+		perror(av[1]);
 	data->fd_out = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (data->fd_out == FAIL)
 		return (perror(av[ac - 1]), free_data(data));
@@ -103,7 +105,7 @@ t_cmd_data	*ft_init_cmd_data(char *cmd_line, char **path_list)
 	if (!cmd_data)
 		return (NULL);
 	cmd_data->cmd = ft_split(cmd_line, ' ');
-	if (!cmd_data->cmd)
+	if (!cmd_data->cmd || !cmd_data->cmd[0])
 		return (free_cmd_data(cmd_data));
 	cur = 0;
 	while (path_list[cur])

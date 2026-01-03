@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/14 21:21:47 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/02 11:08:05 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:20:54 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,13 +64,13 @@ t_data			*ft_init_data(int ac, char **av, const char *path_line);
 void			ft_run_cmd(t_cmd_data *cmd_data, t_data *data, int cmd_count);
 int				ft_process_cmds(char **av, t_data *data);
 int				ft_create_pipes(t_data *data);
-void			ft_close_all_fds(t_data *data);
 int				ft_wait_pids(t_data *data);
 
 //
 // ------ UTILS ------
 //
 char			*ft_super_join(char const *s1, char const *s2, char sep);
+void			ft_close_all_fds(t_data *data);
 
 //
 // ------ ERROR ------
