@@ -6,12 +6,16 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/03 22:41:25 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/05 00:48:00 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+/**
+ * Fonction pour recuperer la ligne commencant par 'PATH=' dans l'environnement
+ * envp.
+ */
 char	*ft_find_path(char **envp)
 {
 	const char	*path = "PATH=";
@@ -27,6 +31,9 @@ char	*ft_find_path(char **envp)
 	return (NULL);
 }
 
+/**
+ * Fonction pour free propremment la structure 'data'.
+ */
 void	*free_data(t_data *data)
 {
 	if (data->path_list)
@@ -53,6 +60,16 @@ void	*free_data(t_data *data)
 	return (NULL);
 }
 
+/**
+ * Fonction pour initialiser la data de pipex :
+ * - n_cmds -> le nombre de commandes.
+ * - path_list -> les differents path qu'on a trouve dans envp
+ * - pipefds -> un tableau avec les fds de chaque pipe
+ * - pids -> les adresses 'pids' de chaque fork
+ * - fd_in -> le fd correspondant au fichier 'infile'
+ * - fd_out -> le fd correspondant au fichier 'outfile'
+ * On a aussi 'envp' qui est stocke dans cette structure depuis le main.
+ */
 t_data	*ft_init_data(int ac, char **av, const char *path_line)
 {
 	t_data	*data;
@@ -79,6 +96,9 @@ t_data	*ft_init_data(int ac, char **av, const char *path_line)
 	return (data);
 }
 
+/**
+ * Fonction pour free proprement la structure 'cmd_data'.
+ */
 void	*free_cmd_data(t_cmd_data *cmd_data)
 {
 	if (cmd_data->path)
@@ -96,6 +116,11 @@ void	*free_cmd_data(t_cmd_data *cmd_data)
 	return (NULL);
 }
 
+/**
+ * Prepare une commande pour la donner a execve qui demande la 
+ * commande 'splite' et le path de la commande pour fonctionner.
+ * On stock ces 2 informations dans une structure 'cmd_data'.
+ */
 t_cmd_data	*ft_init_cmd_data(char *cmd_line, char **path_list)
 {
 	t_cmd_data	*cmd_data;

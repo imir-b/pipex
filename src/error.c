@@ -6,18 +6,24 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:36:42 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/03 22:59:24 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/05 00:49:45 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+/**
+ * Affiche le message d'erreur 's' sur STDERR (2) et return 1 pour code erreur.
+ */
 int	ft_error(char *s)
 {
 	ft_putendl_fd(s, STDERR_FILENO);
 	return (ERROR);
 }
 
+/**
+ * Fonction pour free un tableau de chaine de caracteres.
+ */
 void	*free_tab(char **strs)
 {
 	int	i;
@@ -29,6 +35,9 @@ void	*free_tab(char **strs)
 	return (NULL);
 }
 
+/**
+ * Fonction pour fermer tous les file descriptors ouverts durant pipex.
+ */
 void	ft_close_all_fds(t_data *data)
 {
 	int	count;

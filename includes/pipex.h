@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/14 21:21:47 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/03 22:41:15 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/04 23:45:53 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,33 +49,33 @@ typedef struct s_cmd_data
 	char	*path;
 }	t_cmd_data;
 
-//
-// ------ PARSING ------
-//
+// -----------------------------------------------------------------------------
+// PARSING
+// -----------------------------------------------------------------------------
 char			*ft_find_path(char **envp);
 void			*free_cmd_data(t_cmd_data *cmd_data);
 t_cmd_data		*ft_init_cmd_data(char *cmd_line, char **path_list);
 void			*free_data(t_data *data);
 t_data			*ft_init_data(int ac, char **av, const char *path_line);
 
-//
-// ------ PROCESS ------
-//
+// -----------------------------------------------------------------------------
+// PROCESS
+// -----------------------------------------------------------------------------
 void			ft_run_cmd(t_cmd_data *cmd_data, t_data *data, int cmd_count);
 int				ft_process_cmds(char **av, t_data *data);
 int				ft_create_pipes(t_data *data);
 int				ft_wait_pids(t_data *data);
 
-//
-// ------ UTILS ------
-//
+// -----------------------------------------------------------------------------
+// UTILS
+// -----------------------------------------------------------------------------
 char			*ft_super_join(char const *s1, char const *s2, char sep);
 char			**ft_split_quotes(char *s, char sep);
 void			ft_close_all_fds(t_data *data);
 
-//
-// ------ ERROR ------
-//
+// -----------------------------------------------------------------------------
+// ERROR
+// -----------------------------------------------------------------------------
 int				ft_error(char *s);
 void			*free_tab(char **strs);
 

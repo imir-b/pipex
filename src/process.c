@@ -6,12 +6,15 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:00:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/02 11:30:10 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/05 00:38:38 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+/**
+ * 
+ */
 int	ft_wait_pids(t_data *data)
 {
 	int	i;
@@ -33,6 +36,9 @@ int	ft_wait_pids(t_data *data)
 	return (exit_code);
 }
 
+/**
+ * Securise l'appel a la fonction dup2 pour exit propremment si le retour est -1
+ */
 void	ft_secure_dup2(int fd, int target, t_cmd_data *cmd_data, t_data *data)
 {
 	if (dup2(fd, target) == FAIL)
@@ -44,6 +50,12 @@ void	ft_secure_dup2(int fd, int target, t_cmd_data *cmd_data, t_data *data)
 	}
 }
 
+/**
+ * Fonction qui dup le fd_in et fd_out d'une commande par STDIN (0) et STDOUT 
+ * (1) puis l'execute. Si n_cmd est egal a 0 on execute la premiere commande.
+ * Si n_cmd est egal a data->n_cmd - 1 on execute la derniere commande.
+ * Sinon on execute une commande intermediaire.
+ */
 void	ft_run_cmd(t_cmd_data *c_data, t_data *data, int n_cmd)
 {
 	if (n_cmd == 0)
@@ -72,6 +84,11 @@ void	ft_run_cmd(t_cmd_data *c_data, t_data *data, int n_cmd)
 	exit(ERROR);
 }
 
+/**
+ * On cree un processus par commande avec fork puis pour chaque, on appelle 
+ * ft_init_cmd_data pour recuperer la commande puis on ft_run_cmd pour
+ * l'executer.
+ */
 int	ft_process_cmds(char **av, t_data *data)
 {
 	int			cmd_count;
@@ -94,13 +111,15 @@ int	ft_process_cmds(char **av, t_data *data)
 				exit(COMMAND_ERR);
 			}
 			ft_run_cmd(cmd_data, data, cmd_count);
-			free_cmd_data(cmd_data);
 		}
 		cmd_count++;
 	}
 	return (SUCCESS);
 }
 
+/**
+ * Fonction qui cree 'n - 1' pipe pour 'n' commandes.
+ */
 int	ft_create_pipes(t_data *data)
 {
 	int	n_pipes;
