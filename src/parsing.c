@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/05 00:48:00 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/06 03:19:52 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,32 @@ void	*free_data(t_data *data)
 	return (NULL);
 }
 
+int	ft_handle_heredoc(char *limiter)
+{
+	int		pipefd[2];
+	int		len;
+	char	*line;
+
+	if (pipe(pipefd) == FAIL)
+		return (FAIL);
+	len = ft_strlen(limiter);
+	while (TRUE)
+	{
+		line = get_next_line(STDIN_FILENO);
+		if (!line)
+			break ;
+		if (!ft_strncmp(line, limiter, len) && line[len] == '\n')
+		{
+			free(line);
+			break ;
+		}
+		write(pipefd[1], line, ft_strlen(line));
+		free(line);
+	}
+	close(pipefd[1]);
+	return (pipefd[0]);
+}
+
 /**
  * Fonction pour initialiser la data de pipex :
  * - n_cmds -> le nombre de commandes.
@@ -70,29 +96,40 @@ void	*free_data(t_data *data)
  * - fd_out -> le fd correspondant au fichier 'outfile'
  * On a aussi 'envp' qui est stocke dans cette structure depuis le main.
  */
-t_data	*ft_init_data(int ac, char **av, const char *path_line)
+t_data	*ft_init_data(int ac, char **av, char **envp, int is_heredoc)
 {
-	t_data	*data;
+	t_data		*data;
 
 	data = ft_calloc(1, sizeof(t_data));
 	if (!data)
 		return (NULL);
-	data->path_list = ft_split(path_line, ':');
+	data->envp = envp;
+	data->path_list = ft_split(ft_find_path(envp), ':');
 	if (!data->path_list)
 		return (free_data(data));
-	data->n_cmds = ac - 3;
+	if (is_heredoc)
+	{
+		if (ac < 6)
+			return (free_data(data));
+		data->n_cmds = ac - 4;
+		data->fd_in = ft_handle_heredoc(av[2]);
+	}
+	else
+	{
+		data->n_cmds = ac - 3;
+		data->fd_in = open(av[1], O_RDONLY);
+		if (data->fd_in == FAIL)
+			perror(av[1]);
+	}
+	data->fd_out = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (data->fd_out == FAIL)
+		return (perror(av[ac - 1]), free_data(data));
 	data->pipefds = malloc(sizeof(int) * 2 * (data->n_cmds - 1));
 	if (!data->pipefds)
 		return (free_data(data));
 	data->pids = malloc(sizeof(pid_t) * data->n_cmds);
 	if (!data->pids)
 		return (free_data(data));
-	data->fd_in = open(av[1], O_RDONLY);
-	if (data->fd_in == FAIL)
-		perror(av[1]);
-	data->fd_out = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (data->fd_out == FAIL)
-		return (perror(av[ac - 1]), free_data(data));
 	return (data);
 }
 

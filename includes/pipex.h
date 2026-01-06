@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/14 21:21:47 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/04 23:45:53 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/06 03:18:51 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 # define ERROR 1
 # define FAIL -1
 # define TRUE 1
+# define FALSE 0
 # define ACCESS_ERR 126
 # define COMMAND_ERR 127
 # define DUP_ERR "Error : Dup2 failed"
@@ -56,13 +57,13 @@ char			*ft_find_path(char **envp);
 void			*free_cmd_data(t_cmd_data *cmd_data);
 t_cmd_data		*ft_init_cmd_data(char *cmd_line, char **path_list);
 void			*free_data(t_data *data);
-t_data			*ft_init_data(int ac, char **av, const char *path_line);
+t_data			*ft_init_data(int ac, char **av, char **envp, int is_heredoc);
 
 // -----------------------------------------------------------------------------
 // PROCESS
 // -----------------------------------------------------------------------------
 void			ft_run_cmd(t_cmd_data *cmd_data, t_data *data, int cmd_count);
-int				ft_process_cmds(char **av, t_data *data);
+int				ft_process_cmds(int args, char **av, t_data *data);
 int				ft_create_pipes(t_data *data);
 int				ft_wait_pids(t_data *data);
 

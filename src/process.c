@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:00:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/05 00:38:38 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/06 03:07:12 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ void	ft_run_cmd(t_cmd_data *c_data, t_data *data, int n_cmd)
  * ft_init_cmd_data pour recuperer la commande puis on ft_run_cmd pour
  * l'executer.
  */
-int	ft_process_cmds(char **av, t_data *data)
+int	ft_process_cmds(int args, char **av, t_data *data)
 {
 	int			cmd_count;
 	t_cmd_data	*cmd_data;
@@ -102,10 +102,10 @@ int	ft_process_cmds(char **av, t_data *data)
 			exit(ERROR);
 		if (data->pids[cmd_count] == 0)
 		{
-			cmd_data = ft_init_cmd_data(av[cmd_count + 2], data->path_list);
+			cmd_data = ft_init_cmd_data(av[cmd_count + args], data->path_list);
 			if (!cmd_data)
 			{
-				ft_error(av[cmd_count + 2]);
+				ft_error(av[cmd_count + args]);
 				ft_error(": commande introuvable");
 				free_data(data);
 				exit(COMMAND_ERR);
