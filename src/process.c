@@ -6,14 +6,15 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:00:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/06 03:07:12 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/07 11:08:46 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
 /**
- * 
+ * Fonction qui fait un waitpid sur chaque 'data->pids' et renvoie le signal
+ * de retour du processus.
  */
 int	ft_wait_pids(t_data *data)
 {
@@ -39,7 +40,8 @@ int	ft_wait_pids(t_data *data)
 /**
  * Securise l'appel a la fonction dup2 pour exit propremment si le retour est -1
  */
-void	ft_secure_dup2(int fd, int target, t_cmd_data *cmd_data, t_data *data)
+static void	ft_secure_dup2(int fd, int target, t_cmd_data *cmd_data, \
+				t_data *data)
 {
 	if (dup2(fd, target) == FAIL)
 	{
@@ -105,10 +107,9 @@ int	ft_process_cmds(int args, char **av, t_data *data)
 			cmd_data = ft_init_cmd_data(av[cmd_count + args], data->path_list);
 			if (!cmd_data)
 			{
-				ft_error(av[cmd_count + args]);
-				ft_error(": commande introuvable");
+				ft_error_strs(av[cmd_count + args], CMD_ERR);
 				free_data(data);
-				exit(COMMAND_ERR);
+				exit(CMD_ERR_CODE);
 			}
 			ft_run_cmd(cmd_data, data, cmd_count);
 		}

@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/06 03:19:52 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/07 11:36:19 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,34 +32,10 @@ char	*ft_find_path(char **envp)
 }
 
 /**
- * Fonction pour free propremment la structure 'data'.
+ * Fonction qui permet de lire dans STDIN_FILENO (0) jusqu'a recuperer
+ * le 'limiter' pour gerer les here_docs. On return le fd dans lequel
+ * on a ecrit toutes les lignes.
  */
-void	*free_data(t_data *data)
-{
-	if (data->path_list)
-		free_tab(data->path_list);
-	if (data->pipefds)
-	{
-		free(data->pipefds);
-		data->pipefds = NULL;
-	}
-	if (data->pids)
-	{
-		free(data->pids);
-		data->pids = NULL;
-	}
-	if (data->fd_in)
-		close(data->fd_in);
-	if (data->fd_out)
-		close(data->fd_out);
-	if (data)
-	{
-		free(data);
-		data = NULL;
-	}
-	return (NULL);
-}
-
 int	ft_handle_heredoc(char *limiter)
 {
 	int		pipefd[2];
@@ -87,16 +63,46 @@ int	ft_handle_heredoc(char *limiter)
 }
 
 /**
- * Fonction pour initialiser la data de pipex :
- * - n_cmds -> le nombre de commandes.
- * - path_list -> les differents path qu'on a trouve dans envp
- * - pipefds -> un tableau avec les fds de chaque pipe
- * - pids -> les adresses 'pids' de chaque fork
- * - fd_in -> le fd correspondant au fichier 'infile'
- * - fd_out -> le fd correspondant au fichier 'outfile'
- * On a aussi 'envp' qui est stocke dans cette structure depuis le main.
+ * Decoupage de ft_init_data pour faire les open, on a un calcul different
+ * pour 'n_cmds' quand on a un here_doc a cause du 'limiter' qui fait un 
+ * argument en plus.
  */
-t_data	*ft_init_data(int ac, char **av, char **envp, int is_heredoc)
+static int	ft_init_files(t_data *data, int ac, char **av, int heredoc)
+{
+	if (heredoc)
+	{
+		if (ac < 6)
+			return (ft_error(ARG_ERR));
+		data->n_cmds = ac - 4;
+		data->fd_in = ft_handle_heredoc(av[2]);
+		if (data->fd_in == FAIL)
+			return (ft_error(HEREDOC_ERR));
+		data->fd_out = open(av[ac - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+	}
+	else
+	{
+		data->n_cmds = ac - 3;
+		data->fd_in = open(av[1], O_RDONLY);
+		if (data->fd_in == FAIL)
+			perror(av[1]);
+		data->fd_out = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	}
+	if (data->fd_out == FAIL)
+		return (perror(av[ac - 1]), ERROR);
+	return (SUCCESS);
+}
+
+/**
+ * Fonction pour initialiser la data de pipex :
+ * - 'n_cmds' -> le nombre de commandes,
+ * - 'path_list' -> les differents path qu'on a trouve dans envp,
+ * - 'pipefds' -> un tableau avec les fds de chaque pipe,
+ * - 'pids' -> les adresses 'pids' de chaque fork,
+ * - 'fd_in' -> le fd correspondant au fichier 'infile',
+ * - 'fd_out' -> le fd correspondant au fichier 'outfile',
+ * - 'envp' -> envp qui est stocke dans cette structure.
+ */
+t_data	*ft_init_data(int ac, char **av, char **envp, int heredoc)
 {
 	t_data		*data;
 
@@ -107,23 +113,8 @@ t_data	*ft_init_data(int ac, char **av, char **envp, int is_heredoc)
 	data->path_list = ft_split(ft_find_path(envp), ':');
 	if (!data->path_list)
 		return (free_data(data));
-	if (is_heredoc)
-	{
-		if (ac < 6)
-			return (free_data(data));
-		data->n_cmds = ac - 4;
-		data->fd_in = ft_handle_heredoc(av[2]);
-	}
-	else
-	{
-		data->n_cmds = ac - 3;
-		data->fd_in = open(av[1], O_RDONLY);
-		if (data->fd_in == FAIL)
-			perror(av[1]);
-	}
-	data->fd_out = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (data->fd_out == FAIL)
-		return (perror(av[ac - 1]), free_data(data));
+	if (ft_init_files(data, ac, av, heredoc))
+		return (free_data(data));
 	data->pipefds = malloc(sizeof(int) * 2 * (data->n_cmds - 1));
 	if (!data->pipefds)
 		return (free_data(data));
@@ -131,26 +122,6 @@ t_data	*ft_init_data(int ac, char **av, char **envp, int is_heredoc)
 	if (!data->pids)
 		return (free_data(data));
 	return (data);
-}
-
-/**
- * Fonction pour free proprement la structure 'cmd_data'.
- */
-void	*free_cmd_data(t_cmd_data *cmd_data)
-{
-	if (cmd_data->path)
-	{
-		free(cmd_data->path);
-		cmd_data->path = NULL;
-	}
-	if (cmd_data->cmd)
-		free_tab(cmd_data->cmd);
-	if (cmd_data)
-	{
-		free(cmd_data);
-		cmd_data = NULL;
-	}
-	return (NULL);
 }
 
 /**

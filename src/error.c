@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:36:42 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/05 00:49:45 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/07 10:54:39 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,34 +22,16 @@ int	ft_error(char *s)
 }
 
 /**
- * Fonction pour free un tableau de chaine de caracteres.
+ * Appel strjoin pour creer un messasge d'erreur a partir de s1 et s2. 
  */
-void	*free_tab(char **strs)
+int	ft_error_strs(char *s1, char *s2)
 {
-	int	i;
+	char	*msg;
 
-	i = 0;
-	while (strs[i])
-		free(strs[i++]);
-	free(strs);
-	return (NULL);
-}
-
-/**
- * Fonction pour fermer tous les file descriptors ouverts durant pipex.
- */
-void	ft_close_all_fds(t_data *data)
-{
-	int	count;
-
-	count = 0;
-	while (count < 2 * (data->n_cmds - 1))
-	{
-		close(data->pipefds[count]);
-		count++;
-	}
-	if (data->fd_in != FAIL)
-		close(data->fd_in);
-	if (data->fd_out != FAIL)
-		close(data->fd_out);
+	msg = ft_strjoin(s1, s2);
+	if (!msg)
+		return (ERROR);
+	ft_error(msg);
+	free(msg);
+	return (SUCCESS);
 }

@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 04:26:42 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/03 22:58:32 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/07 10:46:57 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,9 @@ static int	ft_count_words_quotes(char *s, char sep)
 	return (count);
 }
 
+/**
+ * Fonction liee a ft_split_quotes.
+ */
 static int	ft_word_len_quotes(char *s, char sep)
 {
 	char	*start;
@@ -70,6 +73,9 @@ static int	ft_word_len_quotes(char *s, char sep)
 	return (len);
 }
 
+/**
+ * Fonction liee a ft_split_quotes.
+ */
 static char	*ft_extract_word_quotes(char **s, char sep)
 {
 	char	*word;
