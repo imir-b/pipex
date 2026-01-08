@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:00:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/07 11:08:46 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/07 21:32:35 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	ft_run_cmd(t_cmd_data *c_data, t_data *data, int n_cmd)
 						c_data, data);
 	}
 	ft_close_all_fds(data);
-	execve(c_data->path, c_data->cmd, data->envp);
+	execve(c_data->path, c_data->cmd, data->envp); //essayer de lire la commande telle quelle pour tester les path+cmd
 	perror(EXE_ERR);
 	free_cmd_data(c_data);
 	free_data(data);

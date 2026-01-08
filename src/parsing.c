@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/07 11:36:19 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/07 21:34:18 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ char	*ft_find_path(char **envp)
  * le 'limiter' pour gerer les here_docs. On return le fd dans lequel
  * on a ecrit toutes les lignes.
  */
-int	ft_handle_heredoc(char *limiter)
+int	ft_handle_heredoc(char *limiter) // refaire la fonction avec unlink pour creer un fichier temp
 {
 	int		pipefd[2];
 	int		len;
