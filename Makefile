@@ -6,7 +6,7 @@
 #    By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/14 21:18:51 by vbleskin          #+#    #+#              #
-#    Updated: 2026/01/07 11:07:16 by vbleskin         ###   ########.fr        #
+#    Updated: 2026/01/19 05:55:46 by vbleskin         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,8 @@ LIBFT_DIR			=	$(SRC_DIR)libft/
 # FILES
 # ------------------------------------------------------------------------------
 
-SRC_FILES		=	main.c utils.c utils_free.c error.c process.c parsing.c
+SRC_FILES		=	main.c utils.c utils_free.c error.c process.c parsing.c \
+					heredoc.c
 SRCS			=	$(addprefix $(SRC_DIR), $(SRC_FILES))
 OBJS			=	$(addprefix $(OBJ_DIR), $(SRC_FILES:.c=.o))
 

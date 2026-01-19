@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/19 04:57:30 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/19 05:57:25 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,36 +29,6 @@ char	*ft_find_path(char **envp)
 		envp++;
 	}
 	return (NULL);
-}
-
-/**
- * Fonction qui permet de lire dans STDIN_FILENO (0) jusqu'a recuperer
- * le 'limiter' pour gerer les here_docs. On return le fd dans lequel
- * on a ecrit toutes les lignes.
- */
-int	ft_handle_heredoc(char *limiter)
-{
-	int		fd;
-	int		len;
-	char	*line;
-
-	fd = open(".tmp_heredoc", O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	if (fd == FAIL)
-		return (FAIL);
-	len = ft_strlen(limiter);
-	while (TRUE)
-	{
-		line = get_next_line(STDIN_FILENO);
-		if (!line || (!ft_strncmp(line, limiter, len) && line[len] == '\n'))
-			break ;
-		write(fd, line, ft_strlen(line));
-		free(line);
-	}
-	free(line);
-	close(fd);
-	fd = open(".tmp_heredoc", O_RDONLY);
-	unlink(".tmp_heredoc");
-	return (fd);
 }
 
 /**
@@ -124,40 +94,49 @@ t_data	*ft_init_data(int ac, char **av, char **envp, int heredoc)
 }
 
 /**
+ * Fonction qui cherche le chemin dans 'paths' associe a la commande
+ * On test 1 par 1 les chemins qu'on concatene avec la commande puis
+ * avec 'access' on test si le chemin est le bon.
+ */
+static char	*ft_scan_bin_paths(char **paths, char *cmd)
+{
+	char	*full_path;
+	int		i;
+
+	i = 0;
+	while (paths && paths[i])
+	{
+		full_path = ft_super_join(paths[i], cmd, '/');
+		if (full_path && access(full_path, X_OK) == 0)
+			return (full_path);
+		free(full_path);
+		i++;
+	}
+	return (NULL);
+}
+
+/**
  * Prepare une commande pour la donner a execve qui demande la 
  * commande 'splite' et le path de la commande pour fonctionner.
+ * On test si la commande ne contient pas deja son path, sinon
+ * on appelle ft_scan_bin_paths pour trouver le bon path.
  * On stock ces 2 informations dans une structure 'cmd_data'.
  */
 t_cmd_data	*ft_init_cmd_data(char *cmd_line, char **path_list)
 {
-	t_cmd_data	*cmd_data;
-	int			cur;
+	t_cmd_data	*data;
 
-	cmd_data = ft_calloc(1, sizeof(t_cmd_data));
-	if (!cmd_data)
+	data = ft_calloc(1, sizeof(t_cmd_data));
+	if (!data)
 		return (NULL);
-	cmd_data->cmd = ft_split_quotes(cmd_line, ' ');
-	if (!cmd_data->cmd || !cmd_data->cmd[0])
-		return (free_cmd_data(cmd_data));
-	if (ft_strrchr(cmd_data->cmd[0], '/') && !access(cmd_data->cmd[0], X_OK))
-	{
-		cmd_data->path = ft_strdup(cmd_data->cmd[0]);
-		return (cmd_data);
-	}
-	cur = 0;
-	while (path_list[cur])
-	{
-		cmd_data->path = ft_super_join(path_list[cur], cmd_data->cmd[0], '/');
-		if (!cmd_data->path)
-			return (free_cmd_data(cmd_data));
-		if (access(cmd_data->path, X_OK) == 0)
-			return (cmd_data);
-		else
-		{
-			free(cmd_data->path);
-			cmd_data->path = NULL;
-		}
-		cur++;
-	}
-	return (free_cmd_data(cmd_data));
+	data->cmd = ft_split_quotes(cmd_line, ' ');
+	if (!data->cmd || !data->cmd[0])
+		return (free_cmd_data(data));
+	if (ft_strrchr(data->cmd[0], '/') && access(data->cmd[0], X_OK) == 0)
+		data->path = ft_strdup(data->cmd[0]);
+	else
+		data->path = ft_scan_bin_paths(path_list, data->cmd[0]);
+	if (!data->path)
+		return (free_cmd_data(data));
+	return (data);
 }
