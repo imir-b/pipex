@@ -6,7 +6,7 @@
 /*   By: vbleskin <vbleskin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 22:34:28 by vbleskin          #+#    #+#             */
-/*   Updated: 2026/01/07 21:34:18 by vbleskin         ###   ########.fr       */
+/*   Updated: 2026/01/19 04:57:30 by vbleskin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,30 +36,29 @@ char	*ft_find_path(char **envp)
  * le 'limiter' pour gerer les here_docs. On return le fd dans lequel
  * on a ecrit toutes les lignes.
  */
-int	ft_handle_heredoc(char *limiter) // refaire la fonction avec unlink pour creer un fichier temp
+int	ft_handle_heredoc(char *limiter)
 {
-	int		pipefd[2];
+	int		fd;
 	int		len;
 	char	*line;
 
-	if (pipe(pipefd) == FAIL)
+	fd = open(".tmp_heredoc", O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (fd == FAIL)
 		return (FAIL);
 	len = ft_strlen(limiter);
 	while (TRUE)
 	{
 		line = get_next_line(STDIN_FILENO);
-		if (!line)
+		if (!line || (!ft_strncmp(line, limiter, len) && line[len] == '\n'))
 			break ;
-		if (!ft_strncmp(line, limiter, len) && line[len] == '\n')
-		{
-			free(line);
-			break ;
-		}
-		write(pipefd[1], line, ft_strlen(line));
+		write(fd, line, ft_strlen(line));
 		free(line);
 	}
-	close(pipefd[1]);
-	return (pipefd[0]);
+	free(line);
+	close(fd);
+	fd = open(".tmp_heredoc", O_RDONLY);
+	unlink(".tmp_heredoc");
+	return (fd);
 }
 
 /**
@@ -140,6 +139,11 @@ t_cmd_data	*ft_init_cmd_data(char *cmd_line, char **path_list)
 	cmd_data->cmd = ft_split_quotes(cmd_line, ' ');
 	if (!cmd_data->cmd || !cmd_data->cmd[0])
 		return (free_cmd_data(cmd_data));
+	if (ft_strrchr(cmd_data->cmd[0], '/') && !access(cmd_data->cmd[0], X_OK))
+	{
+		cmd_data->path = ft_strdup(cmd_data->cmd[0]);
+		return (cmd_data);
+	}
 	cur = 0;
 	while (path_list[cur])
 	{
